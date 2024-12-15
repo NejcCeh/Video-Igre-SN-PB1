@@ -1,5 +1,6 @@
 # Video-Igre-SN-PB1
 Seminarska naloga pri predmetu podatkovne baze 1
+
 Imeli bomo glavno tabelo video_igre. V tej imamo dostop do podatkov: id, ime, tekstovni
 opis, starostno omejitev, datum izida.
 Nato bomo imeli tabelo izdajatelj, kjer bodo podatki: id, ime, država, leto, spletna stran. 

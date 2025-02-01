@@ -10,4 +10,3 @@ Nato pa imamo še tabeli konzole in žanr, ki pa se povezujeta z glavno tablo ig
 ima lahko več iger več žanrov in konozol. Konzole bodo vsebovale: id ime, datum izida,
 proizvajalec, generacija.
 Tabela žanr bo imela id in naziv.
-

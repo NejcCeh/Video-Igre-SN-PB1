@@ -1,63 +1,77 @@
 import sqlite3
 
-# Povežemo se (ali ustvarimo) bazo SQLite
-conn = sqlite3.connect("igre.db")
-cursor = conn.cursor()
+# Funkcija za ustvarjanje tabel v bazi
+def create_tables():
+    conn = sqlite3.connect("igre.db")
+    cursor = conn.cursor()
 
-# Ustvarimo tabelo video_igre
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS video_igre (
-    id INTEGER PRIMARY KEY,
-    ime TEXT NOT NULL,
-    tekstovni_opis TEXT,
-    starostna_omejitev INTEGER,
-    datum_izida TEXT
-);
-""")
+    cursor.executescript("""
+        PRAGMA foreign_keys = ON;
 
-# Ustvarimo tabelo izdajatelji
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS izdajatelji (
-    id INTEGER PRIMARY KEY,
-    ime TEXT NOT NULL,
-    država TEXT,
-    leto_ustanovitve INTEGER,
-    spletna_stran TEXT
-);
-""")
+        CREATE TABLE IF NOT EXISTS video_igre (
+            id INTEGER PRIMARY KEY,
+            ime TEXT NOT NULL,
+            opis TEXT,
+            starostna_omejitev INTEGER,
+            datum_izida TEXT
+        );
 
-# Ustvarimo tabelo povezava igre - izdajatelj (1:N)
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS igre_izdajatelj (
-    id_igre INTEGER,
-    id_izdajatelja INTEGER,
-    FOREIGN KEY (id_igre) REFERENCES video_igre(id),
-    FOREIGN KEY (id_izdajatelja) REFERENCES izdajatelji(id)
-);
-""")
+        CREATE TABLE IF NOT EXISTS izdajatelji (
+            id INTEGER PRIMARY KEY,
+            ime TEXT NOT NULL,
+            drzava TEXT,
+            leto_ustanovitve INTEGER,
+            spletna_stran TEXT
+        );
 
-# Ustvarimo tabelo konzole
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS konzole (
-    id INTEGER PRIMARY KEY,
-    ime TEXT NOT NULL,
-    datum_izida TEXT,
-    proizvajalec TEXT,
-    generacija TEXT
-);
-""")
+        CREATE TABLE IF NOT EXISTS igre_izdajatelj (
+            igra_id INTEGER,
+            izdajatelj_id INTEGER,
+            PRIMARY KEY (igra_id, izdajatelj_id),
+            FOREIGN KEY (igra_id) REFERENCES video_igre(id) ON DELETE CASCADE,
+            FOREIGN KEY (izdajatelj_id) REFERENCES izdajatelji(id) ON DELETE CASCADE
+        );
 
-# Ustvarimo tabelo povezava igre - konzole (N:N)
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS igre_konzole (
-    id_igre INTEGER,
-    id_konzole INTEGER,
-    FOREIGN KEY (id_igre) REFERENCES video_igre(id),
-    FOREIGN KEY (id_konzole) REFERENCES konzole(id)
-);
-""")
+        CREATE TABLE IF NOT EXISTS konzole (
+            id INTEGER PRIMARY KEY,
+            ime TEXT NOT NULL,
+            datum_izida TEXT,
+            proizvajalec TEXT,
+            generacija INTEGER
+        );
 
-# Potrdimo spremembe in zapremo povezavo
-conn.commit()
-conn.close()
+        CREATE TABLE IF NOT EXISTS igre_konzole (
+            igra_id INTEGER,
+            konzola_id INTEGER,
+            PRIMARY KEY (igra_id, konzola_id),
+            FOREIGN KEY (igra_id) REFERENCES video_igre(id) ON DELETE CASCADE,
+            FOREIGN KEY (konzola_id) REFERENCES konzole(id) ON DELETE CASCADE
+        );
 
+        CREATE TABLE IF NOT EXISTS zanri (
+            id INTEGER PRIMARY KEY,
+            naziv TEXT NOT NULL UNIQUE
+        );
+
+        CREATE TABLE IF NOT EXISTS igre_zanri (
+            igra_id INTEGER,
+            zanr_id INTEGER,
+            PRIMARY KEY (igra_id, zanr_id),
+            FOREIGN KEY (igra_id) REFERENCES video_igre(id) ON DELETE CASCADE,
+            FOREIGN KEY (zanr_id) REFERENCES zanri(id) ON DELETE CASCADE
+        );
+
+        CREATE TABLE IF NOT EXISTS ocene (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            igra_id INTEGER,
+            ocena INTEGER CHECK(ocena BETWEEN 1 AND 10),
+            komentar TEXT,
+            datum_ocene TEXT,
+            FOREIGN KEY (igra_id) REFERENCES video_igre(id) ON DELETE CASCADE
+        );
+    """)
+
+    conn.commit()
+    conn.close()
+
+create_tables()

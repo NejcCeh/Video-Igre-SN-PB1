@@ -1,11 +1,11 @@
-id,ime,tekstovni_opis,starostna_omejitev,datum_izida
-1,CyberWar 2077,Futuristična RPG igra v odprtem svetu.,18,2020-12-10
-2,Shadow Quest,Temna fantazijska avantura s taktičnimi boji.,16,2019-05-15
-3,Pixel Racer,Retro 2D dirkalna igra z arkadnim občutkom.,3,2021-07-22
-4,Zombie Apocalypse X,Preživetvena horror igra z zombiji.,18,2018-10-31
-5,Galactic Battles,Strategija v vesolju s spektakularnimi bitkami.,12,2022-03-14
-6,Fantasy Kingdoms,MMORPG v svetu magije in mitov.,16,2020-09-07
-7,Speed Legends,Simulacija vožnje z realističnimi avtomobili.,3,2021-11-20
-8,Magic Duel,Kartaška igra s čarobnimi bitji in uroki.,7,2019-06-30
-9,Warzone Tactical,Vojaška strelska igra z realističnimi misijami.,18,2023-01-18
-10,Underground Hacker,Simulacija hekanja in programiranja.,12,2022-05-25
+id,ime,opis,starostna_omejitev,datum_izida
+1,The Witcher 3,Open-world RPG,18,2015-05-19
+2,GTA V,Action-adventure,18,2013-09-17
+3,Minecraft,Sandbox,7,2011-11-18
+4,Forza Horizon 5,Racing game with open-world,3,2021-11-09
+5,Cyberpunk 2077,Futuristic open-world RPG,18,2020-12-10
+6,Red Dead Redemption 2,Western action-adventure,18,2018-10-26
+7,Halo Infinite,Sci-fi FPS,16,2021-12-08
+8,The Legend of Zelda: Breath of the Wild,Open-world adventure,12,2017-03-03
+9,Super Mario Odyssey,3D platformer,3,2017-10-27
+10,Dark Souls III,Hardcore action RPG,16,2016-03-24

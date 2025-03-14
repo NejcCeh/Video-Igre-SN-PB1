@@ -33,7 +33,7 @@ izdajatelji_data = [
     [7, "FromSoftware", "Japonska", 1986, "https://www.fromsoftware.jp"]
 ]
 
-# Seznam za povezave igre ↔ izdajatelj
+# Seznam za povezave igre - izdajatelj
 igre_izdajatelj_data = [
     ["igra_id", "izdajatelj_id"],
     [1, 1],
@@ -59,7 +59,7 @@ konzole_data = [
     [6, "Nintendo Switch", "2017-03-03", "Nintendo", 9]
 ]
 
-# Seznam za povezave igre ↔ konzola
+# Seznam za povezave igre - konzola
 igre_konzole_data = [
     ["igra_id", "konzola_id"],
     [1, 1],

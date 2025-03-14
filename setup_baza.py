@@ -10,7 +10,7 @@ def create_tables():
 
         CREATE TABLE IF NOT EXISTS video_igre (
             id INTEGER PRIMARY KEY,
-            ime TEXT NOT NULL,
+            ime TEXT NOT NULL UNIQUE,
             opis TEXT,
             starostna_omejitev INTEGER,
             datum_izida TEXT

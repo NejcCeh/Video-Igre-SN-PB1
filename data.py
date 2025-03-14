@@ -33,7 +33,7 @@ izdajatelji_data = [
     [7, "FromSoftware", "Japonska", 1986, "https://www.fromsoftware.jp"]
 ]
 
-# Seznam za povezave igre ↔ izdajatelj
+# Seznam za povezave igre - izdajatelj
 igre_izdajatelj_data = [
     ["igra_id", "izdajatelj_id"],
     [1, 1],

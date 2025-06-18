@@ -1,147 +1,347 @@
+import requests
+import time
 import csv
+import random
+from datetime import datetime, timedelta
 
-# Ustvari CSV datoteko
-def create_csv(filename, data):
-    with open(filename, mode="w", newline="", encoding="utf-8") as file:
-        writer = csv.writer(file)
-        writer.writerows(data)
+API_KEY = "2dfa9292629a4b89a89169e532c04527"
+BASE_URL = "https://api.rawg.io/api/games"
 
-# Seznam za igre
-video_igre_data = [
-    ["id", "ime", "opis", "starostna_omejitev", "datum_izida"],
-    [1, "The Witcher 3", "Open-world RPG", 18, "2015-05-19"],
-    [2, "GTA V", "Action-adventure", 18, "2013-09-17"],
-    [3, "Minecraft", "Sandbox", 7, "2011-11-18"],
-    [4, "Forza Horizon 5", "Racing game with open-world", 3, "2021-11-09"],
-    [5, "Cyberpunk 2077", "Futuristic open-world RPG", 18, "2020-12-10"],
-    [6, "Red Dead Redemption 2", "Western action-adventure", 18, "2018-10-26"],
-    [7, "Halo Infinite", "Sci-fi FPS", 16, "2021-12-08"],
-    [8, "The Legend of Zelda: Breath of the Wild", "Open-world adventure", 12, "2017-03-03"],
-    [9, "Super Mario Odyssey", "3D platformer", 3, "2017-10-27"],
-    [10, "Dark Souls III", "Hardcore action RPG", 16, "2016-03-24"]
-]
+def pridobi_igre_csv(stevilo_iger=200):
+    page = 1
+    pridobljene_igre = 0
+    podatki_csv = []
 
-# Seznam za izdajatelje
-izdajatelji_data = [
-    ["id", "ime", "drzava", "leto_ustanovitve", "spletna_stran"],
-    [1, "CD Projekt Red", "Poljska", 2002, "https://www.cdprojektred.com"],
-    [2, "Rockstar Games", "ZDA", 1998, "https://www.rockstargames.com"],
-    [3, "Mojang Studios", "Švedska", 2009, "https://www.minecraft.net"],
-    [4, "Playground Games", "Velika Britanija", 2010, "https://playground-games.com"],
-    [5, "Bungie", "ZDA", 1991, "https://www.bungie.net"],
-    [6, "Nintendo", "Japonska", 1889, "https://www.nintendo.com"],
-    [7, "FromSoftware", "Japonska", 1986, "https://www.fromsoftware.jp"]
-]
+    while pridobljene_igre < stevilo_iger:
+        params = {
+            "key": API_KEY,
+            "page_size": 40,
+            "page": page,
+            "ordering": "-rating"
+        }
 
-# Seznam za povezave igre - izdajatelj
-igre_izdajatelj_data = [
-    ["igra_id", "izdajatelj_id"],
-    [1, 1],
-    [2, 2],
-    [3, 3],
-    [4, 4],
-    [5, 1],
-    [6, 2],
-    [7, 5],
-    [8, 6],
-    [9, 6],
-    [10, 7]
-]
+        odgovor = requests.get(BASE_URL, params=params)
+        if odgovor.status_code != 200:
+            print("Napaka pri pridobivanju strani", page)
+            break
 
-# Seznam za konzole
-konzole_data = [
-    ["id", "ime", "datum_izida", "proizvajalec", "generacija"],
-    [1, "PC", "N/A", "Various", "N/A"],
-    [2, "PlayStation 4", "2013-11-15", "Sony", 8],
-    [3, "Xbox One", "2013-11-22", "Microsoft", 8],
-    [4, "PlayStation 5", "2020-11-12", "Sony", 9],
-    [5, "Xbox Series X", "2020-11-10", "Microsoft", 9],
-    [6, "Nintendo Switch", "2017-03-03", "Nintendo", 9]
-]
+        igre = odgovor.json()["results"]
+        if not igre:
+            break
 
-# Seznam za povezave igre - konzola
-igre_konzole_data = [
-    ["igra_id", "konzola_id"],
-    [1, 1],
-    [1, 2],
-    [2, 1],
-    [2, 2],
-    [2, 3],
-    [3, 1],
-    [3, 2],
-    [4, 1],
-    [4, 3],
-    [4, 5],
-    [5, 1],
-    [5, 4],
-    [5, 5],
-    [6, 1],
-    [6, 2],
-    [6, 3],
-    [7, 1],
-    [7, 3],
-    [7, 5],
-    [8, 6],
-    [9, 6],
-    [10, 1],
-    [10, 2],
-    [10, 3],
-    [10, 4]
-]
+        for igra in igre:
+            if pridobljene_igre >= stevilo_iger:
+                break
 
-# Seznam za žanre
-zanri_data = [
-    ["id", "naziv"],
-    [1, "RPG"],
-    [2, "Action"],
-    [3, "Sandbox"],
-    [4, "Racing"],
-    [5, "FPS"],
-    [6, "Adventure"],
-    [7, "Platformer"]
-]
+            ime = igra["name"]
+            datum = igra.get("released", "Ni datuma")
+            slug = igra["slug"]
 
-# Seznam za povezave igre ↔ žanri
-igre_zanri_data = [
-    ["igra_id", "zanr_id"],
-    [1, 1],
-    [2, 2],
-    [3, 3],
-    [4, 4],
-    [5, 1],
-    [5, 2],
-    [6, 2],
-    [6, 6],
-    [7, 2],
-    [7, 5],
-    [8, 6],
-    [9, 7],
-    [10, 1],
-    [10, 2]
-]
+            podrobnosti_url = f"https://api.rawg.io/api/games/{slug}?key={API_KEY}"
+            podrobnosti_odgovor = requests.get(podrobnosti_url)
 
-# Seznam za ocene
-ocene_data = [
-    ["id", "igra_id", "ocena", "komentar", "datum_ocene"],
-    [1, 1, 10, "Fantastična igra!", "2024-02-01"],
-    [2, 2, 9, "Igra z odličnim zgodbo!", "2024-02-02"],
-    [3, 3, 8, "Zelo kreativna igra", "2024-02-03"],
-    [4, 4, 9, "Najboljša dirkalna igra!", "2024-02-04"],
-    [5, 5, 8, "Ima potencial, a potrebuje izboljšave", "2024-02-05"],
-    [6, 6, 10, "Izjemna zgodba in grafika", "2024-02-06"],
-    [7, 7, 7, "Dober večigralski način", "2024-02-07"],
-    [8, 8, 10, "Ena najboljših iger vseh časov!", "2024-02-08"],
-    [9, 9, 9, "Zabavna in inovativna", "2024-02-09"],
-    [10, 10, 8, "Težka, a zelo zadovoljiva igra", "2024-02-10"]
-]
+            if podrobnosti_odgovor.status_code == 200:
+                data = podrobnosti_odgovor.json()
+                opis_raw = data.get("description_raw", "Ni opisa").replace("\n", " ").replace("\r", "")
+                opis = opis_raw[:297] + "..." if len(opis_raw) > 300 else opis_raw
+
+                esrb = data.get("esrb_rating")
+                starost = esrb.get("name") if esrb else "Ni omejitve"
+            else:
+                opis = "Napaka pri opisu"
+                starost = "?"
+
+            vrstica = [pridobljene_igre + 1, ime, opis, starost, datum]
+            podatki_csv.append(vrstica)
+            pridobljene_igre += 1
+            time.sleep(1)
+
+        page += 1
+
+    # Shrani CSV
+    with open("video_igre.csv", "w", encoding="utf-8", newline="") as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(["id", "ime", "opis", "starostna_omejitev", "datum_izida"])
+        writer.writerows(podatki_csv)
+
+    print(f"\n Pridobljenih {pridobljene_igre} iger. CSV datoteka uspešno ustvarjena!")
 
 
-# Ustvari vse CSV datoteke
-create_csv("video_igre.csv", video_igre_data)
-create_csv("izdajatelji.csv", izdajatelji_data)
-create_csv("igre_izdajatelj.csv", igre_izdajatelj_data)
-create_csv("konzole.csv", konzole_data)
-create_csv("igre_konzole.csv", igre_konzole_data)
-create_csv("zanri.csv", zanri_data)
-create_csv("igre_zanri.csv", igre_zanri_data)
-create_csv("ocene.csv", ocene_data)
+def pridobi_izdajatelje(stevilo_iger=200):
+    page = 1
+    igra_id_counter = 1
+    izdajatelji = {}
+    izdajatelji_data = []
+    igre_izdajatelj = []
+    izdajatelj_id_counter = 1
+
+    while igra_id_counter <= stevilo_iger:
+        params = {
+            "key": API_KEY,
+            "page_size": 40,
+            "page": page,
+            "ordering": "-rating"
+        }
+
+        odgovor = requests.get(BASE_URL, params=params)
+        if odgovor.status_code != 200:
+            print(f"Napaka pri pridobivanju strani {page}")
+            break
+
+        igre = odgovor.json()["results"]
+        if not igre:
+            break
+
+        for igra in igre:
+            if igra_id_counter > stevilo_iger:
+                break
+
+            slug = igra["slug"]
+            podrobnosti_url = f"https://api.rawg.io/api/games/{slug}?key={API_KEY}"
+            podrobnosti_odgovor = requests.get(podrobnosti_url)
+
+            if podrobnosti_odgovor.status_code == 200:
+                data = podrobnosti_odgovor.json()
+                publishers = data.get("publishers", [])
+                if not publishers:
+                    publishers = data.get("developers", [])  # nadomestni vir
+
+
+                for pub in publishers:
+                    ime = pub["name"]
+                    spletna = pub.get("website", "Ni podatka")
+
+                    if ime not in izdajatelji:
+                        izdajatelji[ime] = izdajatelj_id_counter
+                        izdajatelji_data.append([
+                            izdajatelj_id_counter,
+                            ime,
+                            "???",  # država ni podana
+                            "???",  # leto ustanovitve ni podano
+                            spletna
+                        ])
+                        izdajatelj_id_counter += 1
+
+                    igre_izdajatelj.append([
+                        igra_id_counter,
+                        izdajatelji[ime]
+                    ])
+            else:
+                print(f"Napaka pri podrobnostih igre {slug}")
+
+            igra_id_counter += 1
+            time.sleep(1)
+
+        page += 1
+
+    # Shrani .csv datoteke
+    with open("izdajatelji.csv", "w", encoding="utf-8", newline="") as f1:
+        writer = csv.writer(f1)
+        writer.writerow(["id", "ime", "drzava", "leto_ustanovitve", "spletna_stran"])
+        writer.writerows(izdajatelji_data)
+
+    with open("igre_izdajatelj.csv", "w", encoding="utf-8", newline="") as f2:
+        writer = csv.writer(f2)
+        writer.writerow(["igra_id", "izdajatelj_id"])
+        writer.writerows(igre_izdajatelj)
+
+    print(f"\n Izdajatelji in povezave so uspešno zapisani za {igra_id_counter - 1} iger.")
+
+
+def pridobi_konzole_in_povezave(stevilo_iger=200):
+    page = 1
+    igra_id_counter = 1
+    konzole = {}
+    konzole_data = []
+    igre_konzole = []
+    konzola_id_counter = 1
+
+    while igra_id_counter <= stevilo_iger:
+        params = {
+            "key": API_KEY,
+            "page_size": 40,
+            "page": page,
+            "ordering": "-rating"
+        }
+
+        odgovor = requests.get(BASE_URL, params=params)
+        if odgovor.status_code != 200:
+            print(f"Napaka pri pridobivanju strani {page}")
+            break
+
+        igre = odgovor.json()["results"]
+        if not igre:
+            break
+
+        for igra in igre:
+            if igra_id_counter > stevilo_iger:
+                break
+
+            slug = igra["slug"]
+            podrobnosti_url = f"https://api.rawg.io/api/games/{slug}?key={API_KEY}"
+            odgovor_podrobnosti = requests.get(podrobnosti_url)
+
+            if odgovor_podrobnosti.status_code == 200:
+                data = odgovor_podrobnosti.json()
+                platforms = data.get("platforms", [])
+
+                for entry in platforms:
+                    platform_name = entry["platform"]["name"]
+
+                    if platform_name not in konzole:
+                        konzole[platform_name] = konzola_id_counter
+                        konzole_data.append([konzola_id_counter, platform_name])
+                        konzola_id_counter += 1
+
+                    igre_konzole.append([igra_id_counter, konzole[platform_name]])
+
+            else:
+                print(f"Napaka pri podrobnostih igre {slug}")
+
+            igra_id_counter += 1
+            time.sleep(1)
+
+        page += 1
+
+    # Shrani konzole
+    with open("konzole.csv", "w", encoding="utf-8", newline="") as f1:
+        writer = csv.writer(f1)
+        writer.writerow(["id", "ime"])
+        writer.writerows(konzole_data)
+
+    # Shrani povezovalno tabelo
+    with open("igre_konzole.csv", "w", encoding="utf-8", newline="") as f2:
+        writer = csv.writer(f2)
+        writer.writerow(["igra_id", "konzola_id"])
+        writer.writerows(igre_konzole)
+
+    print(f"\n Končano! Povezave zapisane za {igra_id_counter - 1} iger. Skupaj {len(konzole)} konzol.")
+
+
+def pridobi_zanre_in_povezave(stevilo_iger=200):
+    page = 1
+    igra_id_counter = 1
+    zanri = {}
+    zanri_data = []
+    igre_zanri = []
+    zanr_id_counter = 1
+
+    while igra_id_counter <= stevilo_iger:
+        params = {
+            "key": API_KEY,
+            "page_size": 40,
+            "page": page,
+            "ordering": "-rating"
+        }
+
+        odgovor = requests.get(BASE_URL, params=params)
+        if odgovor.status_code != 200:
+            print(f"Napaka pri pridobivanju strani {page}")
+            break
+
+        igre = odgovor.json()["results"]
+        if not igre:
+            break
+
+        for igra in igre:
+            if igra_id_counter > stevilo_iger:
+                break
+
+            slug = igra["slug"]
+            podrobnosti_url = f"https://api.rawg.io/api/games/{slug}?key={API_KEY}"
+            odgovor_podrobnosti = requests.get(podrobnosti_url)
+
+            if odgovor_podrobnosti.status_code == 200:
+                data = odgovor_podrobnosti.json()
+                genres = data.get("genres", [])
+
+                for genre in genres:
+                    ime_zanra = genre["name"]
+
+                    if ime_zanra not in zanri:
+                        zanri[ime_zanra] = zanr_id_counter
+                        zanri_data.append([zanr_id_counter, ime_zanra])
+                        zanr_id_counter += 1
+
+                    igre_zanri.append([igra_id_counter, zanri[ime_zanra]])
+
+            else:
+                print(f"Napaka pri podrobnostih igre {slug}")
+
+            igra_id_counter += 1
+            time.sleep(1)
+
+        page += 1
+
+    # Shrani žanre
+    with open("zanri.csv", "w", encoding="utf-8", newline="") as f1:
+        writer = csv.writer(f1)
+        writer.writerow(["id", "ime"])
+        writer.writerows(zanri_data)
+
+    # Shrani povezovalno tabelo
+    with open("igre_zanri.csv", "w", encoding="utf-8", newline="") as f2:
+        writer = csv.writer(f2)
+        writer.writerow(["igra_id", "zanr_id"])
+        writer.writerows(igre_zanri)
+
+    print(f"\n Pridobljenih {igra_id_counter - 1} iger in {len(zanri)} žanrov. CSV datoteke ustvarjene!")
+
+
+
+
+def generiraj_ocene(datoteka="ocene.csv"):
+    """Naljučno generirane ocene"""
+    stevilo_iger = 200
+    max_ocen_na_igro = 5
+    komentarji = [
+        "Izjemna avantura s čudovito grafiko",
+        "Zelo dober gameplay, a manjka globine",
+        "Epsko doživetje – priporočam!",
+        "Igra ima potencial, a je hroščata",
+        "Fantastična zgodba, popoln zaključek",
+        "Zabavno za več igralcev",
+        "Noro dobra akcija, brez premora!",
+        "Igralno lepo uravnotežena",
+        "Zabavna, čeprav nekoliko kratka",
+        "Temna, a zelo zadovoljiva izkušnja",
+        "Dober ambient in močan soundtrack",
+        "Vrhunska fizika in svoboda",
+        "Preveč ponavljajoče, hitro postane dolgočasno",
+        "Odlična glasba in občutek igranja",
+        "Pogrešam boljšo optimizacijo",
+        "Zelo dobra za ljubitelje simulacij",
+        "Mojstrovina! Igral bom še večkrat",
+        "Težko, a pošteno!",
+        "Ni izstopalo",
+        "Adrenalinska vožnja kot nobena druga"
+    ]
+    ocene_data = []
+    ocena_id = 1
+    zacetni_datum = datetime(2024, 1, 1)
+
+    for igra_id in range(1, stevilo_iger + 1):
+        stevilo_ocen = random.randint(1, max_ocen_na_igro)
+        for _ in range(stevilo_ocen):
+            ocena = random.randint(6, 10)
+            komentar = random.choice(komentarji)
+            nakljucni_dan = random.randint(0, 300)
+            datum = zacetni_datum + timedelta(days=nakljucni_dan)
+            datum_str = datum.strftime("%Y-%m-%d")
+            ocene_data.append([ocena_id, igra_id, ocena, komentar, datum_str])
+            ocena_id += 1
+
+    with open("ocene.csv", "w", encoding="utf-8", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["id", "igra_id", "ocena", "komentar", "datum_ocene"])
+        writer.writerows(ocene_data)
+
+    print(f"Uspešno ustvarjenih {len(ocene_data)} ocen za {stevilo_iger} iger. Shranjeno v '{datoteka}'.")
+
+
+#pridobi_igre_csv()
+#pridobi_izdajatelje()
+#pridobi_konzole_in_povezave()
+#pridobi_zanre_in_povezave()
+#generiraj_ocene()
+

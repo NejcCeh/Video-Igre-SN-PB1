@@ -1,7 +1,34 @@
-id,ime,datum_izida,proizvajalec,generacija
-1,PC,N/A,Various,N/A
-2,PlayStation 4,2013-11-15,Sony,8
-3,Xbox One,2013-11-22,Microsoft,8
-4,PlayStation 5,2020-11-12,Sony,9
-5,Xbox Series X,2020-11-10,Microsoft,9
-6,Nintendo Switch,2017-03-03,Nintendo,9
+id,ime,datum_izida, proizvajalec, generacija
+1,PC,,,
+2,Xbox Series S/X,,,
+3,Android,,,
+4,Genesis,,,
+5,Commodore / Amiga,,,
+6,Atari ST,,,
+7,Wii,,,
+8,NES,,,
+9,Game Boy Advance,,,
+10,PlayStation 4,,,
+11,Xbox One,,,
+12,Nintendo Switch,,,
+13,PlayStation 5,,,
+14,PlayStation,,,
+15,PlayStation 3,,,
+16,Linux,,,
+17,Web,,,
+18,macOS,,,
+19,PlayStation 2,,,
+20,Xbox,,,
+21,iOS,,,
+22,Dreamcast,,,
+23,Wii U,,,
+24,SEGA Saturn,,,
+25,Nintendo DS,,,
+26,GameCube,,,
+27,Game Boy,,,
+28,SNES,,,
+29,3DO,,,
+30,SEGA 32X,,,
+31,Nintendo 3DS,,,
+32,Xbox 360,,,
+33,PSP,,,

@@ -1,8 +1,18 @@
 id,naziv
 1,RPG
-2,Action
-3,Sandbox
-4,Racing
-5,FPS
+2,Indie
+3,Action
+4,Arcade
+5,Casual
 6,Adventure
 7,Platformer
+8,Strategy
+9,Fighting
+10,Sports
+11,Shooter
+12,Simulation
+13,Racing
+14,Massively Multiplayer
+15,Puzzle
+16,Educational
+17,Family

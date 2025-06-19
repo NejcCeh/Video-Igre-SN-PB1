@@ -12,7 +12,7 @@ def create_tables():
             id INTEGER PRIMARY KEY,
             ime TEXT NOT NULL UNIQUE,
             opis TEXT,
-            starostna_omejitev INTEGER,
+            starostna_omejitev TEXT,
             datum_izida TEXT
         );
 

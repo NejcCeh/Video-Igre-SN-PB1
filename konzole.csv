@@ -1,34 +1,34 @@
-id,ime,datum_izida, proizvajalec, generacija
-1,PC,,,
-2,Xbox Series S/X,,,
-3,Android,,,
-4,Genesis,,,
-5,Commodore / Amiga,,,
-6,Atari ST,,,
-7,Wii,,,
-8,NES,,,
-9,Game Boy Advance,,,
-10,PlayStation 4,,,
-11,Xbox One,,,
-12,Nintendo Switch,,,
-13,PlayStation 5,,,
-14,PlayStation,,,
-15,PlayStation 3,,,
-16,Linux,,,
-17,Web,,,
-18,macOS,,,
-19,PlayStation 2,,,
-20,Xbox,,,
-21,iOS,,,
-22,Dreamcast,,,
-23,Wii U,,,
-24,SEGA Saturn,,,
-25,Nintendo DS,,,
-26,GameCube,,,
-27,Game Boy,,,
-28,SNES,,,
-29,3DO,,,
-30,SEGA 32X,,,
-31,Nintendo 3DS,,,
-32,Xbox 360,,,
-33,PSP,,,
+id,ime,datum_izida,proizvajalec,generacija
+1,PC,1981-08-12,IBM,1
+2,Xbox Series S/X,2020-11-10,Microsoft,9
+3,Android,2008-09-23,Google,7
+4,Genesis,1988-10-29,Sega,4
+5,Commodore / Amiga,1985-07-23,Commodore,3
+6,Atari ST,1985-06-01,Atari,3
+7,Wii,2006-11-19,Nintendo,7
+8,NES,1983-07-15,Nintendo,3
+9,Game Boy Advance,2001-03-21,Nintendo,6
+10,PlayStation 4,2013-11-15,Sony,8
+11,Xbox One,2013-11-22,Microsoft,8
+12,Nintendo Switch,2017-03-03,Nintendo,9
+13,PlayStation 5,2020-11-12,Sony,9
+14,PlayStation,1994-12-03,Sony,5
+15,PlayStation 3,2006-11-11,Sony,7
+16,Linux,1991-09-17,Linus Torvalds (open-source),4
+17,Web,1991-08-06,Tim Berners-Lee,1
+18,macOS,2001-03-24,Apple,1
+19,PlayStation 2,2000-03-04,Sony,6
+20,Xbox,2001-11-15,Microsoft,6
+21,iOS,2007-06-29,Apple,7
+22,Dreamcast,1998-11-27,Sega,6
+23,Wii U,2012-11-18,Nintendo,8
+24,SEGA Saturn,1994-11-22,Sega,5
+25,Nintendo DS,2004-11-21,Nintendo,7
+26,GameCube,2001-09-14,Nintendo,6
+27,Game Boy,1989-04-21,Nintendo,4
+28,SNES,1990-11-21,Nintendo,4
+29,3DO,1993-10-04,The 3DO Company,5
+30,SEGA 32X,1994-11-21,Sega,Dodatek za 4
+31,Nintendo 3DS,2011-02-26,Nintendo,8
+32,Xbox 360,2005-11-22,Microsoft,7
+33,PSP,2004-12-12,Sony,7

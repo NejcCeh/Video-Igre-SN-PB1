@@ -10,3 +10,5 @@ import_csv.py v bazo uvozi vse podatke pridobljene s spletne strani.
 modeli.py predstavlja modele sql poizvedb za pridobivanje ustreznih podatkov iz baze.
 api.py spletni vmesnik.
 cli.py tekstovni vmesnik.
+
+V bazi so naslednje glavne tabele: Video_igra, konzole, izdajatelji, zanri in ocene. Med temi imamo relacijske tabele, ki skrbijo za ustrezno povezavo. To so igre_zanri, igre_izdajatelji in igre_konzole.

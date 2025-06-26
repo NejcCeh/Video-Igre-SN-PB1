@@ -63,61 +63,17 @@ def najbolje_ocenjene_igre():
 @app.route('/isci_igro')
 def isci_igro():
     ime = request.query.get('query', '')
+    podatki = VideoIgra.poisci_igro_po_imenu(ime)
 
-    conn = sqlite3.connect("igre.db")
-    c = conn.cursor()
-
-    # Poiščemo osnovne podatke o igri
-    c.execute("SELECT id, ime, opis, datum_izida, starostna_omejitev FROM video_igre WHERE ime LIKE ?", (ime,))
-    igra = c.fetchone()
-
-    if igra:
-        igra_id = igra[0]
-
-        # Povprečna ocena
-        c.execute("SELECT ROUND(AVG(ocena), 2) FROM ocene WHERE igra_id = ?", (igra_id,))
-        povprecna_ocena = c.fetchone()[0]
-
-        # Do 5 komentarjev
-        c.execute("SELECT komentar FROM ocene WHERE igra_id = ? LIMIT 5", (igra_id,))
-        komentarji = [r[0] for r in c.fetchall()]
-
-        # Žanri
-        c.execute("""
-            SELECT z.naziv FROM zanri z
-            JOIN igre_zanri iz ON z.id = iz.zanr_id
-            WHERE iz.igra_id = ?
-        """, (igra_id,))
-        zanri = [r[0] for r in c.fetchall()]
-
-        # Konzole
-        c.execute("""
-            SELECT k.ime FROM konzole k
-            JOIN igre_konzole ik ON k.id = ik.konzola_id
-            WHERE ik.igra_id = ?
-        """, (igra_id,))
-        konzole = [r[0] for r in c.fetchall()]
-
-        # Izdajatelj
-        c.execute("""
-            SELECT i.ime FROM izdajatelji i
-            JOIN igre_izdajatelj ii ON i.id = ii.izdajatelj_id
-            WHERE ii.igra_id = ?
-        """, (igra_id,))
-        izdajatelj = c.fetchone()
-        izdajatelj = izdajatelj[0] if izdajatelj else "Ni podatka"
-
-        conn.close()
-
+    if podatki:
         return template('game_details.tpl',
-                        igra=igra,
-                        povprecna_ocena=povprecna_ocena,
-                        komentarji=komentarji,
-                        zanri=zanri,
-                        konzole=konzole,
-                        izdajatelj=izdajatelj)
+                        igra=podatki["igra"],
+                        povprecna_ocena=podatki["povprecna_ocena"],
+                        komentarji=podatki["komentarji"],
+                        zanri=podatki["zanri"],
+                        konzole=podatki["konzole"],
+                        izdajatelj=podatki["izdajatelj"])
     else:
-        conn.close()
         return template('game_details.tpl', igra=None, iskano_ime=ime)
 
 

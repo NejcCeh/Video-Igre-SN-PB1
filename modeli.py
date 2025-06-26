@@ -1,4 +1,5 @@
 import sqlite3
+from datetime import datetime
 
 DATABASE = "igre.db"
 
@@ -70,6 +71,117 @@ class VideoIgra:
         """, (limit,)).fetchall()
         conn.close()
         return igre
+    
+    @staticmethod
+    def poisci_igro_po_imenu(ime):
+        conn = get_db_connection()
+        c = conn.cursor()
+
+        # Iskanje po imenu (LIKE z %ime%)
+        c.execute("SELECT id, ime, opis, datum_izida, starostna_omejitev FROM video_igre WHERE ime LIKE ?", ('%' + ime + '%',))
+        igra = c.fetchone()
+
+        if not igra:
+            conn.close()
+            return None
+
+        igra_id = igra["id"]  # Če uporabljaš sqlite3.Row kot row_factory
+
+        # Povprečna ocena
+        c.execute("SELECT ROUND(AVG(ocena), 2) FROM ocene WHERE igra_id = ?", (igra_id,))
+        povprecna_ocena = c.fetchone()[0]
+
+        # Komentarji
+        c.execute("SELECT komentar FROM ocene WHERE igra_id = ? AND komentar IS NOT NULL LIMIT 5", (igra_id,))
+        komentarji = [r[0] for r in c.fetchall()]
+
+        # Žanri
+        c.execute("""
+            SELECT z.naziv FROM zanri z
+            JOIN igre_zanri iz ON z.id = iz.zanr_id
+            WHERE iz.igra_id = ?
+        """, (igra_id,))
+        zanri = [r[0] for r in c.fetchall()]
+
+        # Konzole
+        c.execute("""
+            SELECT k.ime FROM konzole k
+            JOIN igre_konzole ik ON k.id = ik.konzola_id
+            WHERE ik.igra_id = ?
+        """, (igra_id,))
+        konzole = [r[0] for r in c.fetchall()]
+
+        # Izdajatelj
+        c.execute("""
+            SELECT i.ime FROM izdajatelji i
+            JOIN igre_izdajatelj ii ON i.id = ii.izdajatelj_id
+            WHERE ii.igra_id = ?
+        """, (igra_id,))
+        izdajatelj = c.fetchone()
+        izdajatelj = izdajatelj[0] if izdajatelj else "Ni podatka"
+
+        conn.close()
+
+        return {
+            "igra": igra,
+            "povprecna_ocena": povprecna_ocena,
+            "komentarji": komentarji,
+            "zanri": zanri,
+            "konzole": konzole,
+            "izdajatelj": izdajatelj
+        }
+
+    
+    @staticmethod
+    def seznam_iger():
+        conn = get_db_connection()
+        igre = conn.execute("SELECT id, ime FROM video_igre ORDER BY id ASC").fetchall()
+        conn.close()
+        return igre
+    
+    @staticmethod
+    def poisci_igro_z_detajli(ime):
+        conn = get_db_connection()
+        igra = conn.execute("SELECT id, ime, opis, datum_izida, starostna_omejitev FROM video_igre WHERE ime LIKE ?", (ime,)).fetchone()
+        if not igra:
+            conn.close()
+            return None
+
+        igra_id = igra[0]
+
+        povprecna_ocena = conn.execute("SELECT ROUND(AVG(ocena), 2) FROM ocene WHERE igra_id = ?", (igra_id,)).fetchone()[0]
+
+        komentarji = [r[0] for r in conn.execute("SELECT komentar FROM ocene WHERE igra_id = ? AND komentar IS NOT NULL LIMIT 5", (igra_id,))]
+
+        zanri = [r[0] for r in conn.execute("""
+            SELECT z.naziv FROM zanri z
+            JOIN igre_zanri iz ON z.id = iz.zanr_id
+            WHERE iz.igra_id = ?
+        """, (igra_id,))]
+
+        konzole = [r[0] for r in conn.execute("""
+            SELECT k.ime FROM konzole k
+            JOIN igre_konzole ik ON k.id = ik.konzola_id
+            WHERE ik.igra_id = ?
+        """, (igra_id,))]
+
+        izdajatelj = conn.execute("""
+            SELECT i.ime FROM izdajatelji i
+            JOIN igre_izdajatelj ii ON i.id = ii.izdajatelj_id
+            WHERE ii.igra_id = ?
+        """, (igra_id,)).fetchone()
+        izdajatelj = izdajatelj[0] if izdajatelj else "Ni podatka"
+
+        conn.close()
+        return {
+            "igra": igra,
+            "povprecna_ocena": povprecna_ocena,
+            "komentarji": komentarji,
+            "zanri": zanri,
+            "konzole": konzole,
+            "izdajatelj": izdajatelj
+        }
+
 
 class Ocena:
     @staticmethod
@@ -92,6 +204,36 @@ class Ocena:
         """, (id_igre,)).fetchone()
         conn.close()
         return povprecje[0] if povprecje[0] is not None else None
+    
+    @staticmethod
+    def povprecna_ocena_igre(id_igre):
+        conn = get_db_connection()
+        povprecje = conn.execute("SELECT AVG(ocena) FROM ocene WHERE igra_id = ?", (id_igre,)).fetchone()
+        conn.close()
+        return povprecje[0] if povprecje[0] else None
+
+    @staticmethod
+    def komentarji_igre(id_igre, limit=5):
+        conn = get_db_connection()
+        komentarji = conn.execute("""
+            SELECT komentar FROM ocene
+            WHERE igra_id = ? AND komentar IS NOT NULL
+            LIMIT ?
+        """, (id_igre, limit)).fetchall()
+        conn.close()
+        return komentarji
+
+    @staticmethod
+    def dodaj_oceno_komentar(igra_id, ocena, komentar):
+        conn = get_db_connection()
+        datum = datetime.now().strftime("%Y-%m-%d")
+        conn.execute("""
+            INSERT INTO ocene (igra_id, ocena, komentar, datum_ocene)
+            VALUES (?, ?, ?, ?)
+        """, (igra_id, ocena, komentar, datum))
+        conn.commit()
+        conn.close()
+
 
 class Zanr:
     @staticmethod

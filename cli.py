@@ -1,5 +1,7 @@
 import sqlite3
 from datetime import datetime
+from modeli import VideoIgra
+from modeli import Ocena
 
 def povezava_z_bazo():
     return sqlite3.connect("igre.db")
@@ -25,53 +27,28 @@ def prikazi_igre():
 
 def poisci_igro():
     iskano = input("Vnesi ime igre: ")
-    conn = povezava_z_bazo()
-    c = conn.cursor()
-    c.execute("SELECT * FROM video_igre WHERE ime LIKE ?", ('%' + iskano + '%',))
-    igra = c.fetchone()
+    detajli = VideoIgra.poisci_igro_z_detajli(iskano)
 
-    if igra:
+    if detajli:
+        igra = detajli["igra"]
         print(f"\n--- Podrobnosti igre '{igra[1]}' ---")
         print(f"Opis: {igra[2]}")
         print(f"Datum izida: {igra[3]}")
         print(f"Starostna omejitev: {igra[4]}+")
+        print(f"Povprečna ocena: {detajli['povprecna_ocena'] or 'Ni ocen'}")
 
-        # Povprečna ocena
-        c.execute("SELECT AVG(ocena) FROM ocene WHERE igra_id = ?", (igra[0],))
-        povp = c.fetchone()[0]
-        print(f"Povprečna ocena: {round(povp, 2) if povp else 'Ni ocen'}")
-
-        # Komentarji
-        # Komentarji (maks 5)
-        c.execute("SELECT komentar FROM ocene WHERE igra_id = ? AND komentar IS NOT NULL LIMIT 5", (igra[0],))
-        komentarji = c.fetchall()  
-
-        if komentarji:
+        if detajli['komentarji']:
             print("Komentarji:")
-            for komentar in komentarji:
-                print(f"- {komentar[0]}")
+            for komentar in detajli['komentarji']:
+                print(f"- {komentar}")
         else:
             print("Ni komentarjev.")
     else:
         print("Igra ni bila najdena.")
-    conn.close()
 
 def filtriraj_po_zanru():
     ime_zanra = input("Vnesi žanr (točno ime): ")
-    conn = sqlite3.connect("igre.db")
-    c = conn.cursor()
-
-    c.execute("""
-        SELECT vi.id, vi.ime, vi.opis
-        FROM video_igre vi
-        JOIN igre_zanri iz ON vi.id = iz.igra_id
-        JOIN zanri z ON iz.zanr_id = z.id
-        WHERE z.naziv = ?
-        ORDER BY vi.id
-    """, (ime_zanra,))
-
-    igre = c.fetchall()
-    conn.close()
+    igre = VideoIgra.igre_po_zanru(ime_zanra)
 
     if igre:
         print(f"\n--- Igre v žanru '{ime_zanra}' ---")
@@ -82,9 +59,6 @@ def filtriraj_po_zanru():
 
 
 def dodaj_komentar():
-    conn = sqlite3.connect("igre.db")
-    c = conn.cursor()
-
     try:
         igra_id = int(input("Vnesi ID igre: "))
         komentar = input("Vpiši komentar: ")
@@ -94,24 +68,13 @@ def dodaj_komentar():
             print("Ocena mora biti med 1 in 10.")
             return
 
-        datum = datetime.now().strftime("%Y-%m-%d")
+        uspesno, sporocilo = Ocena.dodaj_oceno_komentar(igra_id, ocena, komentar)
+        print(sporocilo)
 
-        c.execute("SELECT * FROM video_igre WHERE id = ?", (igra_id,))
-        if not c.fetchone():
-            print("Igra z ID-jem ne obstaja.")
-            return
-
-        c.execute("""
-            INSERT INTO ocene (igra_id, ocena, komentar, datum_ocene)
-            VALUES (?, ?, ?, ?)
-        """, (igra_id, ocena, komentar, datum))
-        
-        conn.commit()
-        print("Komentar uspešno dodan.")
+    except ValueError:
+        print("Napaka: ID in ocena morata biti številki.")
     except Exception as e:
         print("Napaka pri dodajanju komentarja:", e)
-    finally:
-        conn.close()
 
 def main():
     while True:
